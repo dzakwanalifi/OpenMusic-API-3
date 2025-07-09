@@ -4,11 +4,11 @@ const config = require('../utils/config');
 class MailSender {
   constructor() {
     this._transporter = nodemailer.createTransport({
-      host: config.mail.host,
-      port: config.mail.port,
+      host: config.smtp.host,
+      port: config.smtp.port,
       auth: {
-        user: config.mail.user,
-        pass: config.mail.password,
+        user: config.smtp.user,
+        pass: config.smtp.password,
       },
     });
   }

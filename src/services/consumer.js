@@ -3,10 +3,11 @@ const config = require('../utils/config');
 const PlaylistsService = require('./PlaylistsService');
 const MailSender = require('./MailSender');
 const Listener = require('./listener');
-const pool = require('./pool');
+const CollaborationsService = require('./CollaborationsService');
 
 const init = async () => {
-  const playlistsService = new PlaylistsService(pool);
+  const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationsService);
   const mailSender = new MailSender();
   const listener = new Listener(playlistsService, mailSender);
 

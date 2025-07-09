@@ -93,10 +93,8 @@ class AlbumsHandler {
     }
     
     try {
-      console.log('Headers received:', cover.hapi.headers);
       this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
     } catch (error) {
-      console.log('Validation error:', error.message);
       const response = h.response({
         status: 'fail',
         message: error.message,
