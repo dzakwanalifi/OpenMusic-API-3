@@ -70,6 +70,9 @@ const init = async () => {
       cors: {
         origin: ['*'],
       },
+      files: {
+        relativeTo: path.join(__dirname, 'api/albums/file'),
+      },
     },
   });
 
@@ -162,12 +165,46 @@ const init = async () => {
     const { response } = request;
 
     if (response instanceof Error) {
+      // Log error details for debugging
+      console.error('Error details:', {
+        statusCode: response.output ? response.output.statusCode : 'unknown',
+        message: response.message,
+        stack: response.stack,
+      });
+
       if (response instanceof ClientError) {
         const newResponse = h.response({
           status: 'fail',
           message: response.message,
         });
         newResponse.code(response.statusCode);
+        return newResponse;
+      }
+
+      if (response.output && response.output.statusCode === 413) {
+        const newResponse = h.response({
+          status: 'fail',
+          message: 'Payload content length greater than maximum allowed: 512000',
+        });
+        newResponse.code(413);
+        return newResponse;
+      }
+
+      if (response.output && response.output.statusCode === 415) {
+        const newResponse = h.response({
+          status: 'fail',
+          message: 'Unsupported media type. Please upload a valid image file.',
+        });
+        newResponse.code(400);
+        return newResponse;
+      }
+
+      if (response.message && response.message.includes('Payload content length greater than maximum allowed')) {
+        const newResponse = h.response({
+          status: 'fail',
+          message: 'Payload content length greater than maximum allowed: 512000',
+        });
+        newResponse.code(413);
         return newResponse;
       }
 

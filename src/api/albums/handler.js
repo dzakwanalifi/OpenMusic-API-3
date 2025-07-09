@@ -61,34 +61,51 @@ class AlbumsHandler {
   }
 
   async postAlbumCoverHandler(request, h) {
+    const { id } = request.params;
+    
+    if (!request.payload) {
+      const response = h.response({
+        status: 'fail',
+        message: 'Payload tidak boleh kosong',
+      });
+      response.code(400);
+      return response;
+    }
+
+    const { cover } = request.payload;
+
+    if (!cover) {
+      const response = h.response({
+        status: 'fail',
+        message: 'Cover file is required',
+      });
+      response.code(400);
+      return response;
+    }
+
+    if (!cover.hapi) {
+      const response = h.response({
+        status: 'fail',
+        message: 'Invalid file format',
+      });
+      response.code(400);
+      return response;
+    }
+    
     try {
-      const { id } = request.params;
-      const { cover } = request.payload || {};
+      // Validate the image headers
+      this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
+    } catch (error) {
+      const response = h.response({
+        status: 'fail',
+        message: error.message,
+      });
+      response.code(400);
+      return response;
+    }
 
-      if (!cover) {
-        const response = h.response({
-          status: 'fail',
-          message: 'Cover tidak ditemukan',
-        });
-        response.code(400);
-        return response;
-      }
-
-      const headers = cover.hapi ? cover.hapi.headers : cover.headers;
-      
-      if (!headers) {
-        const response = h.response({
-          status: 'fail',
-          message: 'File headers tidak ditemukan',
-        });
-        response.code(400);
-        return response;
-      }
-
-      this._uploadsValidator.validateImageHeaders(headers);
-
-      const meta = cover.hapi ? cover.hapi : { filename: cover.filename || 'cover' };
-      const filename = await this._storageService.writeFile(cover, meta);
+    try {
+      const filename = await this._storageService.writeFile(cover, cover.hapi);
       const fileLocation = `http://${process.env.HOST}:${process.env.PORT}/upload/images/${filename}`;
 
       await this._service.addAlbumCoverById(id, fileLocation);
@@ -99,17 +116,13 @@ class AlbumsHandler {
       });
       response.code(201);
       return response;
-    } catch (error) {
-      if (error.name === 'InvariantError') {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        });
-        response.code(400);
-        return response;
-      }
-      
-      throw error;
+    } catch {
+      const response = h.response({
+        status: 'error',
+        message: 'Terjadi kesalahan saat mengunggah sampul',
+      });
+      response.code(500);
+      return response;
     }
   }
 }

@@ -147,6 +147,41 @@ class PlaylistsService {
     return playlist;
   }
 
+  async getPlaylistForExport(playlistId) {
+    const playlistQuery = {
+      text: `SELECT p.id, p.name, u.username
+             FROM playlists p
+             JOIN users u ON p.owner = u.id
+             WHERE p.id = $1`,
+      values: [playlistId],
+    };
+    const playlistResult = await this._pool.query(playlistQuery);
+    
+    if (!playlistResult.rowCount) {
+      throw new NotFoundError('Playlist tidak ditemukan');
+    }
+
+    const songsQuery = {
+      text: `SELECT s.id, s.title, s.performer
+             FROM songs s
+             JOIN playlist_songs ps ON s.id = ps.song_id
+             WHERE ps.playlist_id = $1`,
+      values: [playlistId],
+    };
+    const songsResult = await this._pool.query(songsQuery);
+
+    const playlist = playlistResult.rows[0];
+    playlist.songs = songsResult.rows;
+
+    return {
+      playlist: {
+        id: playlist.id,
+        name: playlist.name,
+        songs: playlist.songs
+      }
+    };
+  }
+
   async deleteSongFromPlaylist(playlistId, songId, userId) {
     await this.verifySongId(songId);
 

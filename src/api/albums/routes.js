@@ -32,15 +32,7 @@ const routes = (handler) => [
         multipart: true,
         output: 'data',
         maxBytes: 512000, // 512KB
-        failAction: (request, h, error) => {
-          if (error.output && error.output.statusCode === 413) {
-            return h.response({
-              status: 'fail',
-              message: 'Payload content length greater than maximum allowed: 512000',
-            }).code(413).takeover();
-          }
-          return h.continue;
-        },
+        parse: true,
       },
     },
   },
@@ -50,6 +42,8 @@ const routes = (handler) => [
     handler: {
       directory: {
         path: path.resolve(__dirname, 'file'),
+        redirectToSlash: true,
+        index: true,
       },
     },
   },
