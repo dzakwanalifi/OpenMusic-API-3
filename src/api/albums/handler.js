@@ -93,9 +93,10 @@ class AlbumsHandler {
     }
     
     try {
-      // Validate the image headers
+      console.log('Headers received:', cover.hapi.headers);
       this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
     } catch (error) {
+      console.log('Validation error:', error.message);
       const response = h.response({
         status: 'fail',
         message: error.message,
@@ -116,7 +117,16 @@ class AlbumsHandler {
       });
       response.code(201);
       return response;
-    } catch {
+    } catch (error) {
+      if (error.message.includes('Invalid file type')) {
+        const response = h.response({
+          status: 'fail',
+          message: 'Invalid file type. Only images are allowed.',
+        });
+        response.code(400);
+        return response;
+      }
+
       const response = h.response({
         status: 'error',
         message: 'Terjadi kesalahan saat mengunggah sampul',
