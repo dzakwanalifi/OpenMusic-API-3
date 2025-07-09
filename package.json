@@ -1,0 +1,37 @@
+{
+  "name": "open-music-api-v3",
+  "version": "3.0.0",
+  "description": "API untuk aplikasi OpenMusic v3 dengan caching, message broker, dan file upload",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:dev": "nodemon src/server.js",
+    "lint": "eslint ./src",
+    "migrate": "node-pg-migrate -r dotenv/config -m migrations --no-check-order"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.842.0",
+    "@hapi/hapi": "^21.4.0",
+    "@hapi/inert": "^7.1.0",
+    "@hapi/jwt": "^3.2.0",
+    "amqplib": "^0.10.8",
+    "auto-bind": "^5.0.1",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.1.0",
+    "joi": "^17.13.3",
+    "nanoid": "^5.1.5",
+    "node-pg-migrate": "^8.0.3",
+    "pg": "^8.16.3",
+    "redis": "^5.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "eslint": "^9.30.1",
+    "globals": "^16.3.0",
+    "nodemon": "^3.1.10"
+  }
+}
