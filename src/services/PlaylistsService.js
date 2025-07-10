@@ -149,9 +149,8 @@ class PlaylistsService {
 
   async getPlaylistForExport(playlistId) {
     const playlistQuery = {
-      text: `SELECT p.id, p.name, u.username
+      text: `SELECT p.id, p.name
              FROM playlists p
-             JOIN users u ON p.owner = u.id
              WHERE p.id = $1`,
       values: [playlistId],
     };
